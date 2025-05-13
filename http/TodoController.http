@@ -1,40 +1,40 @@
-### 투두 리스트 등록
+### 06.할일 등록
 POST http://localhost:8080/todos
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDQyMzc0LCJleHAiOjE3NDcwNDU5NzR9.-whGQWDf0Pn6R6z2tvjDFB5kkmLb9Hy8sKCPqiPXCqo
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 Content-Type: application/json
 
 {
-  "title": "네번째 할일",
-  "description": "공부2 하기",
+  "title": "할일5",
+  "description": "할일5",
   "completed": false,
-  "dueDate": "2025-05-13 02:00:00"
+  "dueDate": "2025-05-15 02:00:00"
 }
 
-### 투두 리스트 전체 조회
+### 07.할일 전체 조회
 GET http://localhost:8080/todos
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDU2Mjk0LCJleHAiOjE3NDcwNTk4OTR9.WQohFVv5oSzFkuG9blQ6fEW9b2i7SFRjeNQ2lm6mHpY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 
-### 투두 리스트 조회
-GET http://localhost:8080/todos/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDU2Mjk0LCJleHAiOjE3NDcwNTk4OTR9.WQohFVv5oSzFkuG9blQ6fEW9b2i7SFRjeNQ2lm6mHpY
+### 08.할일 조회
+GET http://localhost:8080/todos/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 
-### 투두 리스트 수정
-PUT http://localhost:8080/todos/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDU2Mjk0LCJleHAiOjE3NDcwNTk4OTR9.WQohFVv5oSzFkuG9blQ6fEW9b2i7SFRjeNQ2lm6mHpY
+### 09.할일 수정
+PUT http://localhost:8080/todos/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 Content-Type: application/json
 
 {
-  "title": "수정",
-  "description": "테스트",
+  "title": "할일5_1",
+  "description": "할일5_1",
   "completed": true,
-  "dueDate": "2025-05-13 03:00:00"
+  "dueDate": "2025-05-15 02:00:00"
 }
 
-### 투두 리스트 삭제
-DELETE http://localhost:8080/todos/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDQ5MDEwLCJleHAiOjE3NDcwNTI2MTB9.4I2gF90GEUmCTr8qEl7HYKGsksBnkOnDTrbMbg1Qj9o
+### 10.할일 삭제
+DELETE http://localhost:8080/todos/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 
-### 투두 리스트 검색
-GET http://localhost:8080/todos/search?title=수정&description=테스트&completed=true&dueStartDate=2025-05-13&dueEndDate=2025-05-13
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDU2Mjk0LCJleHAiOjE3NDcwNTk4OTR9.WQohFVv5oSzFkuG9blQ6fEW9b2i7SFRjeNQ2lm6mHpY
+### 11.할일 검색
+GET http://localhost:8080/todos/search?title=할일&description=&completed=false&dueStartDate=2025-05-10&dueEndDate=2025-05-15
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
 Content-Type: application/json
