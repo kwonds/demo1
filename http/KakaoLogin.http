@@ -1,0 +1,18 @@
+POST https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=7309b517865aa0ea14252cf312cf1d26&code=${code}
+
+# curl -v -X POST "https://kauth.kakao.com/oauth/token"
+#-H "Content-Type: application/x-www-form-urlencoded"
+#-d "grant_type=authorization_code"
+#-d "client_id=${REST_API_KEY}"
+#--data-urlencode "redirect_uri=${REDIRECT_URI}"
+#-d "code=${AUTHORIZE_CODE}"
+POST https://kauth.kakao.com/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = authorization_code &
+client_id = ${REST_API_KEY} &
+redirect_uri = %24%7BREDIRECT_URI%7D &
+code = ${AUTHORIZE_CODE}
+
+###
+

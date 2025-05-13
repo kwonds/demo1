@@ -1,0 +1,97 @@
+### 회원가입 성공 요청
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "userId": "tester3",
+  "userName": "테스터3",
+  "password": "5678",
+  "email": "tester3@gmail.com"
+}
+
+### 회원가입 실패 요청
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "userId": "tester3",
+  "userName": "테스터1",
+  "password": "1234",
+  "email": "tester1@gmail.com"
+}
+
+### 로그인 성공
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "userId": "tester2",
+  "password": "1234"
+}
+
+### 로그인 비밀번호 실패
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "userId": "tester2",
+  "password": "5678"
+}
+
+### 로그인 아이디 실패
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "userId": "tester4",
+  "password": "1234"
+}
+
+### 내정보 가져오기 성공
+GET http://localhost:8080/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MDA4MjQ1LCJleHAiOjE3NDcwMTE4NDV9.DKa3IbPnXtaF9Lnt6P9ANXzDY0GjOyKQoFeUlOz9KB4
+
+### 내정보 가져오기 실패 토큰 만료
+GET http://localhost:8080/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ2OTkyNjc0LCJleHAiOjE3NDY5OTYyNzR9.WLYzA2k0K21yHmjNvT9nrM3kRx6DukL3c5rSw7AYIXA
+
+### 내정보 가져오기 실패 잘못된 토큰
+GET http://localhost:8080/users/me
+Authorization: Bearer yJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ2OTkyNjc0LCJleHAiOjE3NDY5OTYyNzR9.WLYzA2k0K21yHmjNvT9nrM3kRx6DukL3c5rSw7AYIXA
+
+### 내정보 수정하기 성공
+PUT http://localhost:8080/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIxIiwiaWF0IjoxNzQ3MDAxOTA5LCJleHAiOjE3NDcwMDU1MDl9.p770f1-fwAK4BHP0XiMCKtjQoeWFOtn6kKb1LD0b48k
+Content-Type: application/json
+
+{
+  "email": "tester1_3@gmail.com",
+  "password": "5678",
+  "userName": "테스터1_3"
+}
+
+### 내정보 수정하기 실패
+PUT http://localhost:8080/users/me
+Authorization: Bearer yJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ2OTkyNjc0LCJleHAiOjE3NDY5OTYyNzR9.WLYzA2k0K21yHmjNvT9nrM3kRx6DukL3c5rSw7AYIXA
+Content-Type: application/json
+
+{
+  "email": "tester2_1@gmail.com",
+  "password": "5678"
+}
+
+### 내정보 삭제하기
+DELETE http://localhost:8080/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIxIiwiaWF0IjoxNzQ3MDAxOTA5LCJleHAiOjE3NDcwMDU1MDl9.p770f1-fwAK4BHP0XiMCKtjQoeWFOtn6kKb1LD0b48k
+Content-Type: application/json
+
+### 내정보 삭제하기 실패
+DELETE http://localhost:8080/users/me
+Authorization: Bearer yJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIxIiwiaWF0IjoxNzQ3MDAxOTA5LCJleHAiOjE3NDcwMDU1MDl9.p770f1-fwAK4BHP0XiMCKtjQoeWFOtn6kKb1LD0b48k
+Content-Type: application/json
+
+### 내정보 삭제하기 실패 토큰 만료
+DELETE http://localhost:8080/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ2OTkyNjc0LCJleHAiOjE3NDY5OTYyNzR9.WLYzA2k0K21yHmjNvT9nrM3kRx6DukL3c5rSw7AYIXA
+
+
