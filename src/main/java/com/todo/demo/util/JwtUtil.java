@@ -25,13 +25,10 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-
-//    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-
     // 토큰 생성
-    public String generateToken(String username) {
+    public String generateToken(String userId) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -39,26 +36,9 @@ public class JwtUtil {
     }
 
     // 토큰에서 아이디 추출
-    public String extractUserId(String token) {
+    public String extractUserId(String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
         return parseClaims(token).getSubject();
-    }
-//    public String extractUsername(String token) {
-//        return Jwts.parser()
-//                .setSigningKey(SECRET_KEY)
-//                .parseClaimsJws(token)
-//                .getBody()
-//                .getSubject();
-//    }
-
-    // 토큰 유효성 검증
-    public boolean validateToken(String token) {
-        try {
-            parseClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            // 토큰이 유효하지 않음
-            return false;
-        }
     }
 
     // 토큰에서 Claims 추출

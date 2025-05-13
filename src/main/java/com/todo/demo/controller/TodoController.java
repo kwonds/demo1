@@ -1,15 +1,18 @@
 package com.todo.demo.controller;
 
-import com.todo.demo.dto.TodoInfo;
-import com.todo.demo.dto.TodoListResponse;
-import com.todo.demo.dto.TodoResponse;
-import com.todo.demo.dto.TodoSearchRequest;
+import com.todo.demo.dto.*;
 import com.todo.demo.model.Todo;
 import com.todo.demo.service.TodoService;
 import com.todo.demo.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,7 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/todos")
 @RequiredArgsConstructor
@@ -27,136 +31,100 @@ public class TodoController {
     private final JwtUtil jwtUtil;
 
     @PostMapping
+    @Tag(name = "06.할일 등록")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "201",
+            description = "할일 등록 성공",
+            content = @Content(schema = @Schema(implementation = TodoResponse.class))
+    )
     public ResponseEntity<TodoResponse> createTodo(
-            @RequestHeader("Authorization") String authHeader, @RequestBody Todo request) {
-        try{
-            String userId = extractUserIdFromToken(authHeader);
-            todoService.createTodo(userId, request);
-            return ResponseEntity.ok(TodoResponse.success(null, null));
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoResponse.failure("토큰이 만료되었습니다. 다시 로그인하세요."));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
+            @RequestBody @Valid TodoRequest request) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        todoService.createTodo(userId, request);
+        return ResponseEntity.ok(TodoResponse.success("할일이 등록되었습니다."));
     }
 
     @GetMapping
-    public ResponseEntity<TodoListResponse> getTodos(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String userId = extractUserIdFromToken(authHeader);
-            List<Todo> todos = todoService.getAllTodos(userId);
-            return ResponseEntity.ok(TodoListResponse.success(null, todos));
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoListResponse.failure("토큰이 만료되었습니다. 다시 로그인하세요."));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoListResponse.failure(e.getMessage()));
-        }
+    @Tag(name = "07.할일 전체 조회")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "할일 전체 조회 성공",
+            content = @Content(schema = @Schema(implementation = TodoListResponse.class))
+    )
+    public ResponseEntity<TodoListResponse> getTodos(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        List<Todo> todos = todoService.getAllTodos(userId);
+        return ResponseEntity.ok(TodoListResponse.success(todos));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TodoResponse> getTodoById(
-            @RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        try {
-            validateAuthHeader(authHeader);
-            String userId = extractUserIdFromToken(authHeader);
-            Todo todo = todoService.getTodoById(userId, id);
-            return ResponseEntity.ok(TodoResponse.success(null, todo));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }  catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(TodoResponse.failure(e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(TodoResponse.failure("서버 내부 오류가 발생했습니다."));
-        }
+    @Tag(name = "08.할일 조회")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "할일 조회 성공",
+            content = @Content(schema = @Schema(implementation = TodoInfoResponse.class))
+    )
+    public ResponseEntity<TodoInfoResponse> getTodoById(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
+            @Parameter(name = "id", description = "할일 ID", example = "6") @PathVariable Long id) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        Todo todo = todoService.getTodoById(userId, id);
+        return ResponseEntity.ok(TodoInfoResponse.success(null, todo));
     }
 
     @PutMapping("/{id}")
+    @Tag(name = "09.할일 수정")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "할일 수정 성공",
+            content = @Content(schema = @Schema(implementation = TodoResponse.class))
+    )
+    // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIyIiwiaWF0IjoxNzQ3MTc1ODc5LCJleHAiOjE3NDcxNzk0Nzl9.kptXuVw9wCvO-wupJfzGOh74y-Zz1FYnA4N43AU7aQw
     public ResponseEntity<TodoResponse> updateTodo(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long id,
-            @RequestBody @Valid Todo request) {
-        try {
-            validateAuthHeader(authHeader);
-            String userId = extractUserIdFromToken(authHeader);
-            todoService.updateTodo(userId, id, request);
-            return ResponseEntity.ok(TodoResponse.success(null, null));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }  catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(TodoResponse.failure(e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
+            @Parameter(name = "id", description = "할일 ID", example = "6") @PathVariable Long id,
+            @RequestBody @Valid TodoInfoRequest request) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        todoService.updateTodo(userId, id, request);
+        return ResponseEntity.ok(TodoResponse.success("할일이 수정 되었습니다."));
     }
 
     @DeleteMapping("/{id}")
+    @Tag(name = "10.할일 삭제")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "할일 삭제 성공",
+            content = @Content(schema = @Schema(implementation = TodoResponse.class))
+    )
     public ResponseEntity<TodoResponse> deleteTodo(
-            @RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        try {
-            validateAuthHeader(authHeader);
-            String userId = extractUserIdFromToken(authHeader);
-            todoService.deleteTodo(userId, id);
-            return ResponseEntity.ok(TodoResponse.success(null, null));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }  catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(TodoResponse.failure(e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(TodoResponse.failure(e.getMessage()));
-        }
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
+            @Parameter(name = "id", description = "할일 ID", example = "6") @PathVariable Long id) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        todoService.deleteTodo(userId, id);
+        return ResponseEntity.ok(TodoResponse.success("할일이 삭제되었습니다."));
     }
 
     @GetMapping("/search")
+    @Tag(name = "11.할일 검색")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "할일 검색 성공",
+            content = @Content(schema = @Schema(implementation = TodoListResponse.class))
+    )
     public ResponseEntity<TodoListResponse> searchTodos(
-            @RequestHeader("Authorization") String authHeader,
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
             @ModelAttribute TodoSearchRequest searchRequest) {
-        try {
-            validateAuthHeader(authHeader);
-            String userId = extractUserIdFromToken(authHeader);
-            List<Todo> todos = todoService.searchTodos(userId, searchRequest);
-            return ResponseEntity.ok(TodoListResponse.success(null, todos));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(TodoListResponse.failure(e.getMessage()));
-        }  catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body(TodoListResponse.failure(e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(TodoListResponse.failure(e.getMessage()));
-        }
+        String userId = jwtUtil.extractUserId(authHeader);
+        List<Todo> todos = todoService.searchTodos(userId, searchRequest);
+            return ResponseEntity.ok(TodoListResponse.success(todos));
     }
-
-    // 유틸 메서드
-    private void validateAuthHeader(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new JwtException("인증 토큰이 없습니다.");
-        }
-    }
-
-    private String extractUserIdFromToken(String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        return jwtUtil.extractUserId(token);
-    }
-
-
-
-
-
-
-
 
 }

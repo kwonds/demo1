@@ -2,13 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login Success</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 200px auto;
+        }
+
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .kakao {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-<div class="container" style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin: 200px auto;">
-    <h1>로그인 완료</h1>
-    <p>카카오 계정으로 성공적으로 로그인하셨습니다.</p>
-    <p>환영합니다, <strong th:text="${nickname}"></strong>님!</p>
+<div class="container">
+    <h1>Swagger로 이동</h1>
+    <a class="button" th:href="@{/swagger-ui/index.html}">Swagger UI 열기</a>
+
+    <h1 class="kakao">카카오 로그인</h1>
+    <a th:href="${location}">
+        <img src="/kakao_login_medium_narrow.png" alt="카카오 로그인">
+    </a>
 </div>
 </body>
 </html>

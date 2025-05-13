@@ -1,32 +1,32 @@
 package com.todo.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.todo.demo.model.Todo;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+//@NoArgsConstructor
 @Builder
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TodoResponse {
+public class UserInfoResponse {
 
     private boolean success;
     private String message;
+    private UserInfo data;
 
-    public static TodoResponse success(String message) {
-        return TodoResponse.builder()
+    public static UserInfoResponse success(String message, UserInfo data) {
+        return UserInfoResponse.builder()
                 .success(true)
                 .message(message)
+                .data(data)
                 .build();
     }
 
-    public static TodoResponse failure(String message) {
-        return TodoResponse.builder()
+    public static UserInfoResponse failure(String message) {
+        return UserInfoResponse.builder()
                 .success(false)
                 .message(message)
+                .data(null)
                 .build();
     }
 }

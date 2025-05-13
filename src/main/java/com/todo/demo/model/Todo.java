@@ -1,5 +1,7 @@
 package com.todo.demo.model;
 
+import com.todo.demo.dto.SignupRequest;
+import com.todo.demo.dto.TodoRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -54,6 +56,14 @@ public class Todo {
         this.updateDate = LocalDateTime.now().format(FORMATTER);
     }
 
+    public static Todo of(TodoRequest request, Long writerId) {
+        return Todo.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .dueDate(request.getDueDate())
+                .writerId(writerId)
+                .build();
+    }
 //    @ManyToOne(fetch = FetchType.LAZY) // 하나의 User가 여러 toodo를 작성할 수 있음
 //    @JoinColumn(name = "writer_id", nullable = false) // FK 이름
 //    private User writer; // Users의 id와 연결됨

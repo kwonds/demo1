@@ -6,11 +6,20 @@ import com.todo.demo.service.UserService;
 import com.todo.demo.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Parameter;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -20,89 +29,77 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<LoginResponse> signup(@RequestBody SignupRequest request) {
-        try {
-            User user = userService.registerUser(request);
-            String token = jwtUtil.generateToken(user.getUserId());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(LoginResponse.success(token, "회원가입이 완료되었습니다."));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(LoginResponse.failure(e.getMessage()));
-        }
+    @Tag(name = "01.회원가입")
+    @ApiResponse(
+            responseCode = "201",
+            description = "회원가입 성공",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    public ResponseEntity<UserResponse> signup(@RequestBody @Valid SignupRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(UserResponse.success(null, "회원가입이 완료되었습니다."));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        try {
-            User user = userService.findUser(request);
-            String token = jwtUtil.generateToken(user.getUserId());
-            return ResponseEntity.ok(LoginResponse.success(token, ""));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(LoginResponse.failure(e.getMessage()));
-        }
+    @Tag(name = "02.로그인")
+    @Operation(description = "로그인 후 swagger 오른쪽 상단에 Authorize 버튼 누르고 토큰값 저장 해야 나머지 테스트 가능")
+    @ApiResponse(
+            responseCode = "200",
+            description = "로그인 성공",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    public ResponseEntity<UserResponse> login(@RequestBody @Valid LoginRequest request) {
+        User user = userService.isValidUser(request);
+        String token = jwtUtil.generateToken(user.getUserId());
+        return ResponseEntity.ok(UserResponse.success(token, "로그인 되었습니다."));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> myInfo(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String userId = extractUserIdFromToken(authHeader);
-            User user = userService.findUser(userId);
-            UserInfo userInfo = buildUserInfo(user);
-
-            return ResponseEntity.ok(UserResponse.success(null, userInfo));
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(UserResponse.failure("토큰이 만료되었습니다. 다시 로그인하세요."));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(UserResponse.failure(e.getMessage()));
-        }
+    @Tag(name = "03.내정보 조회")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = UserInfoResponse.class))
+    )
+    public ResponseEntity<UserInfoResponse> getMyInfo(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        User user = userService.findUser(userId);
+        UserInfo userInfo = UserInfo.of(user);
+        return ResponseEntity.ok(UserInfoResponse.success(null, userInfo));
     }
 
     @PutMapping("/me")
-    public ResponseEntity<LoginResponse> updateMyInfo(@RequestHeader("Authorization") String authHeader,
-                                                      @RequestBody UserInfo request) {
-        try {
-            String userId = extractUserIdFromToken(authHeader);
-            userService.updateUser(userId, request);
-            return ResponseEntity.ok(LoginResponse.success(null, "사용자 정보가 수정되었습니다."));
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(LoginResponse.failure("토큰이 만료되었습니다."));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(LoginResponse.failure(e.getMessage()));
-        }
+    @Tag(name = "04.내정보 수정")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "수정 성공",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    public ResponseEntity<UserResponse> updateMyInfo(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader,
+            @RequestBody @Valid UserUpdateRequest request) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        userService.updateUser(userId, request);
+        return ResponseEntity.ok(UserResponse.success(null, "사용자 정보가 수정되었습니다."));
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<LoginResponse> deleteMyInfo(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String userId = extractUserIdFromToken(authHeader);
-            userService.deactivateUser(userId); // 실제 삭제 대신 상태만 변경
-            return ResponseEntity.ok(LoginResponse.success(null, "회원 탈퇴가 완료되었습니다."));
-        } catch (JwtException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(LoginResponse.failure(e.getMessage()));
-        }
-    }
-
-    // 유틸 메서드
-    private String extractUserIdFromToken(String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        return jwtUtil.extractUserId(token);
-    }
-
-    private UserInfo buildUserInfo(User user) {
-        return UserInfo.builder()
-                .userId(user.getUserId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
-                .registDate(user.getRegistDate())
-                .updateDate(user.getUpdateDate())
-                .build();
+    @Tag(name = "05.계정 삭제")
+    @Operation(description = "Authorize 토큰값 저장 필요")
+    @ApiResponse(
+            responseCode = "200",
+            description = "삭제 성공",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    public ResponseEntity<UserResponse> deleteMyInfo(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader) {
+        String userId = jwtUtil.extractUserId(authHeader);
+        userService.deactivateUser(userId);
+        return ResponseEntity.ok(UserResponse.success(null, "회원 탈퇴가 완료되었습니다."));
     }
 
 }

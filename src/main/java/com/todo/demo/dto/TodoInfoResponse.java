@@ -5,26 +5,27 @@ import com.todo.demo.model.Todo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TodoResponse {
+public class TodoInfoResponse {
 
     private boolean success;
     private String message;
+    private Todo todo;
 
-    public static TodoResponse success(String message) {
-        return TodoResponse.builder()
+    public static TodoInfoResponse success(String message, Todo todo) {
+        return TodoInfoResponse.builder()
                 .success(true)
                 .message(message)
+                .todo(todo)
                 .build();
     }
 
-    public static TodoResponse failure(String message) {
-        return TodoResponse.builder()
+    public static TodoInfoResponse failure(String message) {
+        return TodoInfoResponse.builder()
                 .success(false)
                 .message(message)
                 .build();

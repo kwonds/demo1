@@ -1,5 +1,6 @@
 package com.todo.demo.model;
 
+import com.todo.demo.dto.SignupRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,4 +52,14 @@ public class User {
     protected void onUpdate() {
         this.updateDate = LocalDateTime.now().format(FORMATTER);
     }
+
+    public static User of(SignupRequest request, String encodedPassword) {
+        return User.builder()
+                .userId(request.getUserId())
+                .userName(request.getUserName())
+                .password(encodedPassword)
+                .email(request.getEmail())
+                .build();
+    }
+
 }

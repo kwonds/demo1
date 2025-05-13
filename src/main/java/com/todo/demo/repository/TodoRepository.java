@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TodoRepository extends JpaRepository<Todo, Long>, TodoRepositoryCustom {
-    List<Todo> findAllByWriterIdOrderByIdDesc(Long writerId);
-    Optional<Todo> findByWriterIdAndIdOrderByDueDateDesc(Long writerId, Long todoId);
+    List<Todo> findAllByWriterIdOrderByDueDateAsc(Long writerId);
+    Optional<Todo> findByWriterIdAndId(Long writerId, Long todoId);
 }
 
 interface TodoRepositoryCustom {

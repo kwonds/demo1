@@ -26,6 +26,6 @@ public class KakaoLoginController {
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
 
         model.addAttribute("nickname", userInfo.getKakaoAccount().getProfile().getNickName());  // nickname main.html로 전달
-        return "index";
+        return "main";
     }
 }

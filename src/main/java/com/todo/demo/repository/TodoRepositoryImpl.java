@@ -27,23 +27,22 @@ public class TodoRepositoryImpl implements TodoRepositoryCustom {
                 .where(todo.writerId.eq(userId))
                 .where(todo.completed.eq(searchRequest.isCompleted()));
 
-        if (searchRequest.getTitle() != null && !searchRequest.getTitle().isEmpty()) {
+        if (searchRequest.getTitle() != null && !searchRequest.getTitle().trim().isEmpty()) {
             query.where(todo.title.containsIgnoreCase(searchRequest.getTitle()));
         }
 
-        if (searchRequest.getDescription() != null && !searchRequest.getDescription().isEmpty()) {
+        if (searchRequest.getDescription() != null && !searchRequest.getDescription().trim().isEmpty()) {
             query.where(todo.description.containsIgnoreCase(searchRequest.getDescription()));
         }
 
-        if (searchRequest.getDueStartDate() != null && !searchRequest.getDueStartDate().isEmpty()) {
+        if (searchRequest.getDueStartDate() != null && !searchRequest.getDueStartDate().trim().isEmpty()) {
             query.where(todo.dueDate.goe(searchRequest.getDueStartDate() + " 00:00:00"));
         }
 
-        if (searchRequest.getDueEndDate() != null && !searchRequest.getDueEndDate().isEmpty()) {
+        if (searchRequest.getDueEndDate() != null && !searchRequest.getDueEndDate().trim().isEmpty()) {
             query.where(todo.dueDate.loe(searchRequest.getDueEndDate() + " 23:59:59"));
         }
 
-        // 결과 반환
         return query.fetch();
     }
 }
